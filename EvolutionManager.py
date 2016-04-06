@@ -1,3 +1,5 @@
+import time
+
 from GenerationType import *
 from ChromosomeType import *
 
@@ -109,33 +111,52 @@ class EvolutionManager(object):
         print "The most fit individual in the starting generation is\n"
         print currentGeneration.getMostFit()
 
+        startTime = None
+        if self.stopAfterTime is not None:
+            startTime = time.time()
+
+        try:
+
+            trials = 0
+            while True:
+                trials += 1
+
+                #exit conditions
+                if self.maxGenerations is not None and trials > self.maxGenerations:
+                    print "Maximum number of generations reached"
+                    break
+                if self.stopWithFitness is not None and currentGeneration.getMostFit().fitness >= self.stopWithFitness:
+                    print "Sufficient fitness achieved"
+                    break
+                if self.stopAfterTime is not None and (time.time() - startTime) >= self.stopAfterTime:
+                    print "Time limit reached"
+                    break
+                #fixme time limit
+                #fixme max fitness
+
+                print "-" * 100
+                print "Begining computations for generation " + str(trials)
+
+                nextGeneration = currentGeneration.getNextGeneration(self.individualsPerGeneration,
+                                                                     self.elitism,
+                                                                     self.randIndividuals,
+                                                                     self.randFitness,
+                                                                     self.mutationRate,
+                                                                     self.mutationSTDEV)
 
 
-        trials = 0
-        while True:
-            trials += 1
+                nextGeneration.doFitnessTests(threads=self.threads)
 
-            #exit conditions
-            if trials > self.maxGenerations:
-                break
-            #fixme time limit
-            #fixme max fitness
 
-            print "-" * 100
-            print "Begining computations for generation " + str(trials)
+                print "The most fit individual in this generation is\n"
+                print nextGeneration.getMostFit()
 
-            nextGeneration = currentGeneration.getNextGeneration(self.individualsPerGeneration,
-                                                                 self.elitism,
-                                                                 self.randIndividuals,
-                                                                 self.randFitness,
-                                                                 self.mutationRate,
-                                                                 self.mutationSTDEV)
-            nextGeneration.doFitnessTests(threads=self.threads)
+                currentGeneration = nextGeneration
 
-            print "The most fit individual in this generation is\n"
-            print nextGeneration.getMostFit()
-
-            currentGeneration = nextGeneration
+        except Chromosome.PerfectMatch as e:
+                print "A perfect match has been found"
+                print e.message
+                exit(0) #fixme clean up threads once they are implemented
 
 
 if __name__=="__main__":
@@ -177,16 +198,14 @@ if __name__=="__main__":
         if dist != 0:
             return 1 / dist
         else:
-            print "found perfect match!"
-            print chromosome
-            exit(0)
+            return None
 
     em = EvolutionManager(fitnessFunction,
-                 individualsPerGeneration=1000,
+                 individualsPerGeneration=100,
                  elitism=1,
                  randIndividuals=0,
                  randFitness=None,
-                 mutationRate=1,
+                 mutationRate=0.1,
                  mutationSTDEV=0,
                  maxGenerations=1000,
                  stopWithFitness=None,
@@ -198,8 +217,6 @@ if __name__=="__main__":
 
 
     mutator = FloatInverseFit("mut", maxVal=1, startVal=1)
-    #mutator = FloatGeneType("mut", generatorAverage=0.1, generatorSTDEV=0, averageMutation=0, mutationSTDEV=0.001)
-
 
     atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
     btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")

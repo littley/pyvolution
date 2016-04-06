@@ -3,6 +3,10 @@ import math
 
 class Chromosome(object):
 
+    class PerfectMatch(Exception):
+        def __init___(self, perfectSpecimen):
+            Exception.__init__(self, "Perfect match found")
+
     def __init__(self, chromosomeType, genes):
         """
         :param chromosomeType: a template for the chromosome
@@ -47,8 +51,13 @@ class Chromosome(object):
             for mutation in xrange(wholeMutations):
                 gene.mutate(self)
 
+
     def doFitnessTest(self):
         self.fitness = self.chromosomeType.fitnessFunction(self)
+
+        #we have tested the fitness.  If it is still None, then a perfect match must have been found
+        if self.fitness is None:
+            raise self.PerfectMatch(self)
 
     def getFitness(self):
         """
@@ -56,7 +65,7 @@ class Chromosome(object):
         :return:
         """
         if self.fitness is None:
-            self.fitness = self.chromosomeType.fitnessFunction(self)
+            self.doFitnessTest()
             return self.fitness
         else:
             return self.fitness
