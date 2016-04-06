@@ -18,7 +18,6 @@ class Chromosome(object):
         self.genes = genes
         self.fitness = None
 
-
     def copy(self):
         """
         Create a deep copy of this chromosome
@@ -97,7 +96,8 @@ class Chromosome(object):
         """
         newGenes = []
         for geneIndex in xrange(len(self.genes)):
-            newGenes.append(random.choice((self.genes[geneIndex], other.genes[geneIndex])))
+            chosen = random.choice((self.genes[geneIndex], other.genes[geneIndex]))
+            newGenes.append(chosen.copy())
         return Chromosome(self.chromosomeType, newGenes)
 
     def __lt__(self, other):

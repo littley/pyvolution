@@ -182,7 +182,7 @@ if __name__=="__main__":
 
     em = EvolutionManager(fitnessFunction,
                  individualsPerGeneration=1000,
-                 elitism=3,
+                 elitism=1,
                  randIndividuals=0,
                  randFitness=None,
                  mutationRate=0.25,
@@ -195,10 +195,10 @@ if __name__=="__main__":
                  snapshotGenerations=[],
                  threads=4)
 
-    atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.1)
-    btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.1)
-    ctype = FloatGeneType("c", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.1)
-    dtype = FloatGeneType("d", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.1)
+    atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
+    btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
+    ctype = FloatGeneType("c", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
+    dtype = FloatGeneType("d", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
 
     em.addGeneType(atype)
     em.addGeneType(btype)

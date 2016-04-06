@@ -1,5 +1,3 @@
-from multiprocessing import Pool
-import heapq
 import copy
 
 from BreedingPool import *
@@ -108,12 +106,5 @@ class Generation():
         Return the N members of this generation that have the highest fitness
         :rtype: [Chromosome]
         """
-        heapq.heapify(self.population)
-        #shallow copy, we need another list but we don't want to copy the chromosomes!
-        popCopy = copy.copy(self.population)
-        result = []
-        for n in xrange(N):
-            if len(popCopy) == 0:
-                break
-            result.append(heapq.heappop(popCopy))
-        return result
+        self.population = sorted(self.population)
+        return self.population[-1 * N:]
