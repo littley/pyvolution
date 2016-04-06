@@ -10,8 +10,9 @@ class GeneType(object):
         """
         :param generator: this function should return a random value.  The type of this value is the type of the gene
         :type generator: () -> type_of_gene
-        :param mutator: this function should take a value for the gene and randomly mutate it.
-        :type mutator: (type_of_gene) -> type_of_gene
+        :param mutator: this function should take a value for the gene and randomly mutate it.  It may be a function
+                            of the chromosome
+        :type mutator: (type_of_gene, chromosome) -> type_of_gene
         :param description: Useful for debugging
         """
         self.generator = generator

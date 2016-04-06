@@ -10,8 +10,8 @@ class EvolutionManager(object):
                  elitism=0,
                  randIndividuals=0,
                  randFitness=None,
-                 mutationRate=-1,
-                 mutationSTDEV=-1,
+                 mutationRate=1,
+                 mutationSTDEV=0,
                  maxGenerations=None,
                  stopWithFitness=None,
                  stopAfterTime=None,
@@ -142,6 +142,7 @@ if __name__=="__main__":
 
     import math
     import sys
+    import time
 
     from GeneLibrary import *
 
@@ -151,7 +152,7 @@ if __name__=="__main__":
 
     a + b + c + d = 17
     a^2 + b^2 = 5
-    sin(a) + c - d = 20
+    sin(a) + c + d = 20
 
     """
 
@@ -185,21 +186,27 @@ if __name__=="__main__":
                  elitism=1,
                  randIndividuals=0,
                  randFitness=None,
-                 mutationRate=0.25,
-                 mutationSTDEV=0.05,
+                 mutationRate=1,
+                 mutationSTDEV=0,
                  maxGenerations=1000,
                  stopWithFitness=None,
                  stopAfterTime=None,
                  logDir=None,
                  generationsToKeep=0,
                  snapshotGenerations=[],
-                 threads=4)
+                 threads=1)
 
-    atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
-    btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
-    ctype = FloatGeneType("c", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
-    dtype = FloatGeneType("d", generatorAverage=0, generatorSTDEV=1, averageMutation=0, mutationSTDEV=0.04)
 
+    mutator = FloatInverseFit("mut", maxVal=1, startVal=1)
+    #mutator = FloatGeneType("mut", generatorAverage=0.1, generatorSTDEV=0, averageMutation=0, mutationSTDEV=0.001)
+
+
+    atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
+    btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
+    ctype = FloatGeneType("c", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
+    dtype = FloatGeneType("d", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
+
+    em.addGeneType(mutator)
     em.addGeneType(atype)
     em.addGeneType(btype)
     em.addGeneType(ctype)

@@ -45,7 +45,7 @@ class Chromosome(object):
             if partialMutations > random.uniform(0, partialMutations):
                 wholeMutations += 1
             for mutation in xrange(wholeMutations):
-                gene.mutate()
+                gene.mutate(self)
 
     def doFitnessTest(self):
         self.fitness = self.chromosomeType.fitnessFunction(self)

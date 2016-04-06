@@ -1,4 +1,4 @@
-import copy
+from multiprocessing import Process
 
 from BreedingPool import *
 
@@ -75,17 +75,35 @@ class Generation():
         Measure the fitness of each chromosome (if the chromosome has not been previously measured)
         :param threads: the number of theads to use on this operation
         """
-        def testFunct(chromosome):
-            chromosome.doFitnessTest()
-            return None
 
-        #fixme, pool doesn't work here!
+        if threads <= 1:
+            for chromosome in self.population:
+                chromosome.doFitnessTest()
+        else:
+            def testFunct(chromosomes, start, end):
+                print end - start
+                index = start;
+                while index < end:
+                    chromosomes[index].doFitnessTest()
+                    index += 1
 
-        for chromosome in self.population:
-            chromosome.doFitnessTest()
+            for chromosome in self.population:
+                chromosome.doFitnessTest()
 
-        #p = Pool(threads)
-        #p.map(testFunct, self.population)
+            procs = []
+            begin = 0
+            chunksize = int(math.floor(len(self.population) / threads))
+            for t in xrange(threads):
+                p = None
+                if t+1 == threads: #if it is the last thread then give it all remaining
+                    p = Process(target=testFunct, args=(self.population,begin,len(self.population)))
+                else:
+                    p = Process(target=testFunct, args=(self.population,begin,begin+chunksize))
+                p.start()
+                begin += chunksize
+                procs.append(p)
+            for p in procs:
+                p.join()
 
     def getMostFit(self):
         """
