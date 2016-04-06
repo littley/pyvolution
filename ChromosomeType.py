@@ -15,10 +15,17 @@ class ChromosomeType(object):
 
 
     def getRandomChromosome(self):
-
+        """
+        Generate a new individual randomly
+        """
         genes = []
-
         for gType in self.geneTypes:
             genes.append(gType.getRandomGene())
-
         return Chromosome(self, genes)
+
+    def __str__(self):
+        result = "[\n"
+        for gt in self.geneTypes:
+            result += "\t" + str(gt) + "\n"
+        result += "]"
+        return result

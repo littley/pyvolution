@@ -24,3 +24,6 @@ class GeneType(object):
         :rtype: Gene
         """
         return Gene(self, self.generator())
+
+    def __str__(self):
+        return self.description + "   (" + str(type(self.generator())) + ")"

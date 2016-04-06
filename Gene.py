@@ -20,3 +20,6 @@ class Gene(object):
         Cause this gene to be mutated
         """
         self.value = self.geneType.mutator(self.value)
+
+    def __str__(self):
+        return self.geneType.description + "   (" + str(self.value) + ")"

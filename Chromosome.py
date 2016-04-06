@@ -1,8 +1,9 @@
+import random
 import math
 
 class Chromosome(object):
 
-    def __init__(self, chromosomeType, genes, mutationRate=-1, mutationSTDEV=1):
+    def __init__(self, chromosomeType, genes):
         """
         :param chromosomeType: a template for the chromosome
         :type chromosomeType: ChromosomeType
@@ -15,29 +16,104 @@ class Chromosome(object):
         """
         self.chromosomeType = chromosomeType
         self.genes = genes
-
-        self.mutationRate = mutationRate
-        self.mutationSTDEV = mutationSTDEV
-
-        if self.mutationRate == -1:
-            self.mutationRate = math.ceil(0.1 * len(genes)) #heuristic
+        self.fitness = None
 
 
     def copy(self):
+        """
+        Create a deep copy of this chromosome
+        :rtype: Chromosome
+        """
         newGenes = []
         for gene in self.genes:
             newGenes.append(gene.copy())
         return Chromosome(self.chromosomeType, newGenes)
 
-    def mutate(self):
-        pass
+    def mutate(self, mutationRate, mutationSTDEV):
+        """
+        Mutate genes with given probability
+        :param mutationRate: the average number of times that each gene should be mutated.
+                                0.5 means each gene has a 50% of being mutated
+                                2.0 means each gene will be mutated two times, on average
+        :type mutationRate: float
+        :param mutationSTDEV: genes are mutated a number of times depending on a normal distribution, This is the
+                                standard deviation
+        """
+        for gene in self.genes:
+            mutations = random.normalvariate(mutationRate, mutationSTDEV)
+            wholeMutations = int(math.floor(mutations))
+            partialMutations = mutationRate - wholeMutations
+            if partialMutations > random.uniform(0, partialMutations):
+                wholeMutations += 1
+            for mutation in xrange(wholeMutations):
+                gene.mutate()
 
-    def combine(self, other):
-        pass
+    def doFitnessTest(self):
+        self.fitness = self.chromosomeType.fitnessFunction(self)
 
-    def test(self):
+    def getFitness(self):
         """
         Measure the fitness of this individual
         :return:
         """
-        return self.chromosomeType.fitnessFunction(self)
+        if self.fitness is None:
+            self.fitness = self.chromosomeType.fitnessFunction(self)
+            return self.fitness
+        else:
+            return self.fitness
+
+    def __str__(self):
+        result = "[\n"
+        for gene in self.genes:
+            result += "\t" + str(gene) + "\n"
+        result += "]"
+        if self.fitness is not None:
+            result += "  fitness: " + str(self.fitness)
+        return result
+
+    def __setitem__(self, key, value):
+        """
+        Set the value of a particular gene
+        """
+        for gene in self.genes:
+            if gene.geneType.description == key:
+                gene.value = value
+                break
+
+    def __getitem__(self, item):
+        """
+        Get the value of a particular gene
+        :rtype: Gene
+        """
+        for gene in self.genes:
+            if gene.geneType.description == item:
+                return gene.value
+
+    def __add__(self, other):
+        """
+        Takes two chromosomes and returns a child chromosome that is a mix of their genes
+        :type other: Chromosome
+        :rtype: Chromosome
+        """
+        newGenes = []
+        for geneIndex in xrange(len(self.genes)):
+            newGenes.append(random.choice((self.genes[geneIndex], other.genes[geneIndex])))
+        return Chromosome(self.chromosomeType, newGenes)
+
+    def __lt__(self, other):
+        return self.getFitness() < other.getFitness()
+
+    def __gt__(self, other):
+        return self.getFitness() > other.getFitness()
+
+    def __le__(self, other):
+        return self.getFitness() <= other.getFitness()
+
+    def __ge__(self, other):
+        return self.getFitness() >= other.getFitness()
+
+    def __eq__(self, other):
+        return self.getFitness() == other.getFitness()
+
+    def __ne__(self, other):
+        return self.getFitness() != other.getFitness()
