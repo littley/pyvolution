@@ -126,3 +126,12 @@ class Generation():
         """
         self.population = sorted(self.population)
         return self.population[-1 * N:]
+
+    def data(self):
+        """
+        Return an object that can be used to convert a generation to yaml
+        """
+        data = {}
+        for index, chromosome in enumerate(self.population):
+            data[index] = chromosome.data()
+        return data

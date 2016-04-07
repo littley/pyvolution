@@ -1,4 +1,7 @@
+import yaml
+
 from Chromosome import *
+from Gene import *
 
 class ChromosomeType(object):
 
@@ -22,6 +25,20 @@ class ChromosomeType(object):
         for gType in self.geneTypes:
             genes.append(gType.getRandomGene())
         return Chromosome(self, genes)
+
+    def fromYAML(self, data):
+        """
+        Convert a YAML string into a chromosome of this type
+        :rtype: Chromosome
+        """
+        data = yaml.load(data)
+        genes = []
+        for key in data["genes"]:
+            for gType in self.geneTypes:
+                if gType.description == key:
+                    genes.append(Gene(gType, data["genes"][key]))
+        return Chromosome(self, genes)
+
 
     def __str__(self):
         result = "[\n"

@@ -1,3 +1,5 @@
+import yaml
+
 from Generation import *
 
 class GenerationType(object):
@@ -17,4 +19,11 @@ class GenerationType(object):
         newPopulation = []
         for i in xrange(size):
             newPopulation.append(self.chromosomeType.getRandomChromosome())
+        return Generation(self, newPopulation)
+
+    def fromYAML(self, data):
+        data = yaml.load(data)
+        newPopulation = []
+        for key in data:
+            newPopulation.append(self.chromosomeType.fromYAML(data[key]))
         return Generation(self, newPopulation)

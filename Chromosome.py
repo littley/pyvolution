@@ -22,6 +22,8 @@ class Chromosome(object):
         self.genes = genes
         self.fitness = None
 
+        self.perfectMatch = False
+
     def copy(self):
         """
         Create a deep copy of this chromosome
@@ -46,7 +48,7 @@ class Chromosome(object):
             mutations = random.normalvariate(mutationRate, mutationSTDEV)
             wholeMutations = int(math.floor(mutations))
             partialMutations = mutationRate - wholeMutations
-            if partialMutations > random.uniform(0, partialMutations):
+            if partialMutations > random.uniform(0, 1):
                 wholeMutations += 1
             for mutation in xrange(wholeMutations):
                 gene.mutate(self)
@@ -57,6 +59,7 @@ class Chromosome(object):
 
         #we have tested the fitness.  If it is still None, then a perfect match must have been found
         if self.fitness is None:
+            self.perfectMatch = True
             raise self.PerfectMatch(self)
 
     def getFitness(self):
@@ -64,7 +67,9 @@ class Chromosome(object):
         Measure the fitness of this individual
         :return:
         """
-        if self.fitness is None:
+        if self.perfectMatch:
+            return "perfect match"
+        elif self.fitness is None:
             self.doFitnessTest()
             return self.fitness
         else:
@@ -126,3 +131,14 @@ class Chromosome(object):
 
     def __ne__(self, other):
         return self.getFitness() != other.getFitness()
+
+    def data(self):
+        """
+        Convert to a form that can easily be encorporated into a yaml file
+        """
+        data = {}
+        data["fitness"] = self.getFitness()
+        data["genes"] = {}
+        for gene in self.genes:
+            data["genes"][gene.geneType.description] = gene.value
+        return data

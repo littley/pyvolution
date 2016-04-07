@@ -1,25 +1,28 @@
 import time
+import signal
+import os
 
 from GenerationType import *
 from ChromosomeType import *
+from FileManager import *
 
 class EvolutionManager(object):
 
 
     def __init__(self,
                  fitnessFunction,
-                 individualsPerGeneration=1000,
-                 elitism=0,
+                 individualsPerGeneration=100,
+                 elitism=1,
                  randIndividuals=0,
                  randFitness=None,
-                 mutationRate=1,
+                 mutationRate=0.2,
                  mutationSTDEV=0,
                  maxGenerations=None,
                  stopWithFitness=None,
                  stopAfterTime=None,
                  logDir=None,
                  generationsToKeep=0,
-                 snapshotGenerations=[],
+                 snapshotGenerations=None,
                  threads=1):
         """
         :param individualsPerGeneration: the size of the new generation
@@ -46,8 +49,8 @@ class EvolutionManager(object):
         :type logDir: str
         :param generationsToKeep: the number of generations to save to the log directory.  For example, if set to 5
                                     then the 5 most recent generations will be saved
-        :param snapshotGenerations: take a snapshot of the system if the generation number is in this list
-        :type snapshotGenerations: [int]
+        :param snapshotGenerations: take a snapshot of the system very N trials
+        :type snapshotGenerations: int
         :param threads: the number of threads to use for fitness tests
         :type threads: int
 
@@ -70,6 +73,16 @@ class EvolutionManager(object):
         self.generationsToKeep = generationsToKeep
         self.snapshotGenerations = snapshotGenerations
         self.threads = threads
+
+        self.FM = FileManager()
+        self.oldGenerations = []
+        self.oldGenerations_perm = []
+
+        def signal_handler(signal, frame):
+            print "dumping data"
+            self.dataDump()
+            sys.exit(0)
+        signal.signal(signal.SIGINT, signal_handler)
 
 
     def addGeneType(self, geneType):
@@ -121,18 +134,28 @@ class EvolutionManager(object):
             while True:
                 trials += 1
 
+                #take a snapshot
+                if self.snapshotGenerations is not None and trials % self.snapshotGenerations == 0:
+                    self.oldGenerations_perm.append((trials, currentGeneration))
+                #save this trial in temporary storage
+                elif self.generationsToKeep > 0:
+                    if len(self.oldGenerations) >= self.generationsToKeep:
+                        self.oldGenerations = self.oldGenerations[1:]
+                    self.oldGenerations.append((trials, currentGeneration))
+
                 #exit conditions
                 if self.maxGenerations is not None and trials > self.maxGenerations:
                     print "Maximum number of generations reached"
-                    break
+                    self.dataDump()
+                    return currentGeneration.getMostFit()
                 if self.stopWithFitness is not None and currentGeneration.getMostFit().fitness >= self.stopWithFitness:
                     print "Sufficient fitness achieved"
-                    break
+                    self.dataDump()
+                    return currentGeneration.getMostFit()
                 if self.stopAfterTime is not None and (time.time() - startTime) >= self.stopAfterTime:
                     print "Time limit reached"
-                    break
-                #fixme time limit
-                #fixme max fitness
+                    self.dataDump()
+                    return currentGeneration.getMostFit()
 
                 print "-" * 100
                 print "Begining computations for generation " + str(trials)
@@ -156,7 +179,21 @@ class EvolutionManager(object):
         except Chromosome.PerfectMatch as e:
                 print "A perfect match has been found"
                 print e.message
-                exit(0) #fixme clean up threads once they are implemented
+                self.dataDump()
+                return e.message
+
+    def dataDump(self):
+        """
+        Call this function to write all of the pending generations to disk
+        """
+
+        if self.logDir is not None:
+            if not os.path.exists(self.logDir):
+                os.mkdir(self.logDir)
+            for trial in self.oldGenerations:
+                self.FM.write(trial[1], self.logDir + "/" + str(trial[0]) + ".yaml")
+            for trial in self.oldGenerations_perm:
+                self.FM.write(trial[1], self.logDir + "/" + str(trial[0]) + ".yaml")
 
 
 if __name__=="__main__":
@@ -205,14 +242,14 @@ if __name__=="__main__":
                  elitism=1,
                  randIndividuals=0,
                  randFitness=None,
-                 mutationRate=0.1,
+                 mutationRate=0.2,
                  mutationSTDEV=0,
                  maxGenerations=1000,
                  stopWithFitness=None,
                  stopAfterTime=None,
-                 logDir=None,
-                 generationsToKeep=0,
-                 snapshotGenerations=[],
+                 logDir="./out",
+                 generationsToKeep=3,
+                 snapshotGenerations=100,
                  threads=1)
 
 
@@ -229,4 +266,4 @@ if __name__=="__main__":
     em.addGeneType(ctype)
     em.addGeneType(dtype)
 
-    em.run()
+    result = em.run()

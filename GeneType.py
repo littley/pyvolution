@@ -1,3 +1,6 @@
+import pickle
+import marshal
+import types
 
 from Gene import *
 
