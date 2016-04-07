@@ -124,6 +124,8 @@ class Generation():
         Return the N members of this generation that have the highest fitness
         :rtype: [Chromosome]
         """
+        if N == 0:
+            return []
         self.population = sorted(self.population)
         return self.population[-1 * N:]
 

@@ -229,7 +229,7 @@ if __name__=="__main__":
 
     a + b + c + d = 17
     a^2 + b^2 = 5
-    sin(a) + c + d = 20
+    sin(a) + c - d = 20
 
     """
 
@@ -258,7 +258,7 @@ if __name__=="__main__":
 
     em = EvolutionManager(fitnessFunction,
                  individualsPerGeneration=100,
-                 elitism=1,
+                 elitism=0,
                  randIndividuals=0,
                  randFitness=None,
                  mutationRate=0.2,
@@ -267,12 +267,14 @@ if __name__=="__main__":
                  stopWithFitness=None,
                  stopAfterTime=None,
                  logDir="./out",
-                 generationsToKeep=3,
-                 snapshotGenerations=100,
+                 generationsToKeep=0,
+                 snapshotGenerations=None,
                  threads=1)
 
 
-    mutator = FloatInverseFit("mut", maxVal=1, startVal=1)
+    #mutator = FloatGeneType("mut", generatorAverage=0.1, generatorSTDEV=0, averageMutation=0, mutationSTDEV=0.01)
+    
+    mutator = FloatInverseFit("mut", maxVal=0.01, startVal=1)
 
     atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
     btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
