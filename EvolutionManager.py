@@ -23,7 +23,8 @@ class EvolutionManager(object):
                  logDir=None,
                  generationsToKeep=0,
                  snapshotGenerations=None,
-                 threads=1):
+                 threads=1,
+                 startingGeneration=None):
         """
         :param individualsPerGeneration: the size of the new generation
         :type individualsPerGeneration: int
@@ -53,6 +54,8 @@ class EvolutionManager(object):
         :type snapshotGenerations: int
         :param threads: the number of threads to use for fitness tests
         :type threads: int
+        :param startingGeneration: start with generation defined in YAML instead of a random generation
+        :type startingGeneration: str
 
         """
         self.geneTypes = []
@@ -73,6 +76,7 @@ class EvolutionManager(object):
         self.generationsToKeep = generationsToKeep
         self.snapshotGenerations = snapshotGenerations
         self.threads = threads
+        self.startingGenration = startingGeneration
 
         self.FM = FileManager()
         self.oldGenerations = []
@@ -116,7 +120,17 @@ class EvolutionManager(object):
             self.chromosomeType = ChromosomeType(self.fitnessFunction, self.geneTypes)
 
         generationType = GenerationType(self.chromosomeType)
-        currentGeneration = generationType.getRandomGeneration(max(0, self.individualsPerGeneration-len(self.startingChromosomes)))
+
+        if self.startingGenration is None:
+            currentGeneration = generationType.getRandomGeneration(max(0, self.individualsPerGeneration-len(self.startingChromosomes)))
+        else:
+            fobj = open(self.startingGenration)
+            flist = []
+            for line in fobj:
+                flist.append(line)
+            fline = "".join(flist)
+            currentGeneration = generationType.fromYAML(fline)
+            fobj.close()
 
         currentGeneration.population += self.startingChromosomes
         currentGeneration.doFitnessTests(threads=self.threads)
@@ -179,6 +193,11 @@ class EvolutionManager(object):
         except Chromosome.PerfectMatch as e:
                 print "A perfect match has been found"
                 print e.message
+
+                if self.generationsToKeep > 0:
+                    if len(self.oldGenerations) >= self.generationsToKeep:
+                        self.oldGenerations = self.oldGenerations[1:]
+                    self.oldGenerations.append((trials, currentGeneration))
                 self.dataDump()
                 return e.message
 

@@ -31,7 +31,8 @@ class ChromosomeType(object):
         Convert a YAML string into a chromosome of this type
         :rtype: Chromosome
         """
-        data = yaml.load(data)
+        if type(data) is str:
+            data = yaml.load(data)
         genes = []
         for key in data["genes"]:
             for gType in self.geneTypes:
