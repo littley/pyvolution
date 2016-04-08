@@ -1,7 +1,5 @@
 import yaml
 
-from Generation import *
-from Chromosome import *
 
 class FileManager():
     """

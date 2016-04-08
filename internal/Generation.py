@@ -1,6 +1,6 @@
 from multiprocessing import Process
 
-from BreedingPool import *
+from internal.BreedingPool import *
 
 class Generation():
     """

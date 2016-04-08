@@ -1,10 +1,10 @@
-import time
-import signal
 import os
+import signal
 
-from GenerationType import *
-from ChromosomeType import *
 from FileManager import *
+from internal.ChromosomeType import *
+from internal.GenerationType import *
+
 
 class EvolutionManager(object):
 
@@ -218,7 +218,6 @@ class EvolutionManager(object):
 if __name__=="__main__":
 
     import math
-    import sys
     import time
 
     from GeneLibrary import *

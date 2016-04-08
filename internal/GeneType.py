@@ -1,8 +1,4 @@
-import pickle
-import marshal
-import types
-
-from Gene import *
+from internal.Gene import *
 
 class GeneType(object):
     """

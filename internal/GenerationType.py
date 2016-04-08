@@ -1,6 +1,6 @@
 import yaml
 
-from Generation import *
+from internal.Generation import *
 
 class GenerationType(object):
     """

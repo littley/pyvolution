@@ -1,7 +1,8 @@
 import random
 import sys
 
-from GeneType import *
+from internal.GeneType import *
+
 
 def FloatGeneType(description,
                   minVal=None,
