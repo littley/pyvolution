@@ -1,5 +1,6 @@
 import os
 import signal
+import time
 
 from FileManager import *
 from internal.ChromosomeType import *
@@ -213,77 +214,3 @@ class EvolutionManager(object):
                 self.FM.write(trial[1], self.logDir + "/" + str(trial[0]) + ".yaml")
             for trial in self.oldGenerations_perm:
                 self.FM.write(trial[1], self.logDir + "/" + str(trial[0]) + ".yaml")
-
-
-if __name__=="__main__":
-
-    import math
-    import time
-
-    from GeneLibrary import *
-
-    """
-
-    attempt to find a solution to the following system of equations
-
-    a + b + c + d = 17
-    a^2 + b^2 = 5
-    sin(a) + c - d = 20
-
-    """
-
-    def fitnessFunction(chromosome):
-
-        a = chromosome["a"]
-        b = chromosome["b"]
-        c = chromosome["c"]
-        d = chromosome["d"]
-
-
-        #for a perfect solution each of the values will be zero
-        val1 = math.fabs(a + b + c + d - 17)
-        val2 = math.fabs(math.pow(a, 2) + math.pow(b, 2) - 5)
-        val3 = math.sin(a) + c - d - 20
-
-        #minimize the distance from 0
-        dist = math.sqrt(math.pow(val1, 2) + math.pow(val2, 2) + math.pow(val3, 2))
-
-        #number returned must be a positive floating point value
-
-        if dist != 0:
-            return 1 / dist
-        else:
-            return None
-
-    em = EvolutionManager(fitnessFunction,
-                 individualsPerGeneration=100,
-                 elitism=0,
-                 randIndividuals=0,
-                 randFitness=None,
-                 mutationRate=0.2,
-                 mutationSTDEV=0,
-                 maxGenerations=1000,
-                 stopWithFitness=None,
-                 stopAfterTime=None,
-                 logDir="./out",
-                 generationsToKeep=0,
-                 snapshotGenerations=None,
-                 threads=1)
-
-
-    #mutator = FloatGeneType("mut", generatorAverage=0.1, generatorSTDEV=0, averageMutation=0, mutationSTDEV=0.01)
-    
-    mutator = FloatInverseFit("mut", maxVal=0.01, startVal=1)
-
-    atype = FloatGeneType("a", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
-    btype = FloatGeneType("b", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
-    ctype = FloatGeneType("c", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
-    dtype = FloatGeneType("d", generatorAverage=0, generatorSTDEV=100, averageMutation=0, mutatorGene="mut")
-
-    em.addGeneType(mutator)
-    em.addGeneType(atype)
-    em.addGeneType(btype)
-    em.addGeneType(ctype)
-    em.addGeneType(dtype)
-
-    result = em.run()

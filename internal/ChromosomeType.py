@@ -1,7 +1,7 @@
 import yaml
 
 from Gene import *
-from internal.Chromosome import *
+from Chromosome import *
 
 class ChromosomeType(object):
 

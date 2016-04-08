@@ -1,4 +1,4 @@
-from internal.Gene import *
+from Gene import *
 
 class GeneType(object):
     """
