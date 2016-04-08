@@ -110,7 +110,11 @@ class Chromosome(object):
         """
         newGenes = []
         for geneIndex in xrange(len(self.genes)):
-            chosen = random.choice((self.genes[geneIndex], other.genes[geneIndex]))
+            chosen = None
+            if self.genes[geneIndex].geneType.combiner is not None:
+                chosen = self.genes[geneIndex].geneType.combiner(self.genes[geneIndex], other.genes[geneIndex])
+            else:
+                chosen = random.choice((self.genes[geneIndex], other.genes[geneIndex]))
             newGenes.append(chosen.copy())
         return Chromosome(self.chromosomeType, newGenes)
 
