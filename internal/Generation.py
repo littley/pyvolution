@@ -75,9 +75,7 @@ class Generation():
         Measure the fitness of each chromosome (if the chromosome has not been previously measured)
         :param threads: the number of theads to use on this operation
         """
-        
-        print "Generation: fitness tests started. Threads = ", threads
-        
+                
         if threads <= 1:
             for chromosome in self.population:
                 chromosome.doFitnessTest()
@@ -87,7 +85,6 @@ class Generation():
                 print end - start
                 index = start;
                 while index < end:
-                    #print "Chromosome", index, "fitness test"
                     chromosomes[index].doFitnessTest()
                     fitness_calculation_result[index] = chromosomes[index].fitness
                     index += 1                
