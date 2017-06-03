@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from multiprocessing import Process, Array
 
 from BreedingPool import *
 
@@ -75,23 +75,27 @@ class Generation():
         Measure the fitness of each chromosome (if the chromosome has not been previously measured)
         :param threads: the number of theads to use on this operation
         """
-
+                
         if threads <= 1:
             for chromosome in self.population:
                 chromosome.doFitnessTest()
         else:
+            fitness_calculation_result = Array('d', len(self.population))
             def testFunct(chromosomes, start, end):
                 print end - start
                 index = start;
                 while index < end:
                     chromosomes[index].doFitnessTest()
-                    index += 1
-
-            for chromosome in self.population:
-                chromosome.doFitnessTest()
+                    fitness_calculation_result[index] = chromosomes[index].fitness
+                    index += 1                
+            
+            # --- Commented by MR. I do not understand why we do this work twice: 
+            # --- 1 in common, second in treads (in testFunct)
+            #for chromosome in self.population:
+            #    chromosome.doFitnessTest()
 
             procs = []
-            begin = 0
+            begin = 0          
             chunksize = int(math.floor(len(self.population) / threads))
             for t in xrange(threads):
                 p = None
@@ -104,7 +108,10 @@ class Generation():
                 procs.append(p)
             for p in procs:
                 p.join()
-
+            # Added by MR Using shared array to get caclulated data in main thread
+            for i in xrange(len(self.population)):
+                self.population[i].fitness = fitness_calculation_result[i]
+                
     def getMostFit(self):
         """
         Return the most fit individual in a generation.  Returns None if no individual is more than "0 fit"
